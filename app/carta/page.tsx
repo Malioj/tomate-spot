@@ -1,85 +1,98 @@
-import React from 'react';
-
-// --- TU BASE DE DATOS DE TRAGOS ---
-// Aquí es donde editarás los precios y nombres en el futuro
-const tragos = [
-  {
-    id: 1,
-    nombre: "Tomate Signature",
-    descripcion: "Nuestra especialidad. Gin macerado con albahaca, cordial de tomate y tónica.",
-    precio: "$5.500",
-    categoria: "De Autor"
-  },
-  {
-    id: 2,
-    nombre: "Negroni Clásico",
-    descripcion: "Gin London Dry, Campari y Vermouth Rosso. El equilibrio perfecto.",
-    precio: "$4.800",
-    categoria: "Clásicos"
-  },
-  {
-    id: 3,
-    nombre: "Penicillin",
-    descripcion: "Scotch Whisky, limón, miel, jengibre y un ahumado de Islay.",
-    precio: "$5.200",
-    categoria: "Clásicos"
-  },
-  {
-    id: 4,
-    nombre: "Tropical Vibes",
-    descripcion: "Ron dorado, maracuyá fresco, lima y un toque de picante.",
-    precio: "$4.500",
-    categoria: "De Autor"
-  },
-  {
-    id: 5,
-    nombre: "Old Fashioned",
-    descripcion: "Bourbon, azúcar, angostura y piel de naranja.",
-    precio: "$5.000",
-    categoria: "Clásicos"
-  },
-  {
-    id: 6,
-    nombre: "Aperol Spritz",
-    descripcion: "Aperol, Prosecco y golpe de soda. Refrescante.",
-    precio: "$4.200",
-    categoria: "Aperitivos"
-  }
-];
+"use client";
+import { useState } from 'react';
+import { menuItems, Categoria } from './data';
 
 export default function CartaPage() {
+  // Estado para saber qué pestaña está activa (Por defecto: Cócteles)
+  const [activeTab, setActiveTab] = useState<Categoria>('cocteles');
+
+  // 1. Filtramos: Solo mostramos los productos de la categoría elegida
+  const productosFiltrados = menuItems.filter(item => item.categoria === activeTab);
+
+  // 2. Agrupamos: Organizamos por "Subcategoría" (Ej: De Autor, Clásicos, Tapeo...)
+  const porSubcategoria = productosFiltrados.reduce((acc, item) => {
+    const sub = item.subcategoria || 'Varios';
+    if (!acc[sub]) acc[sub] = [];
+    acc[sub].push(item);
+    return acc;
+  }, {} as Record<string, typeof menuItems>);
+
   return (
     <main className="min-h-screen bg-black text-white pt-24 px-4 pb-12">
       
-      {/* Título de la sección */}
-      <div className="max-w-4xl mx-auto text-center mb-12">
-        <h1 className="text-4xl font-bold text-red-600 mb-2">NUESTRA CARTA</h1>
-        <p className="text-gray-400">Cócteles diseñados para momentos únicos.</p>
+      {/* ENCABEZADO */}
+      <div className="max-w-4xl mx-auto text-center mb-8 animate-fadeIn">
+        <h1 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-red-500 to-red-800 mb-2 tracking-tighter">
+          NUESTRA CARTA
+        </h1>
+        <p className="text-gray-400 text-sm tracking-widest uppercase">
+          Tomate Cocktail Spot
+        </p>
       </div>
 
-      {/* Grilla de Tragos */}
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {tragos.map((trago) => (
-          <div key={trago.id} className="bg-zinc-900/50 border border-white/10 p-6 rounded-2xl hover:border-red-600/50 transition duration-300 group">
+      {/* PESTAÑAS DE NAVEGACIÓN (STICKY) */}
+      <div className="sticky top-20 z-40 bg-black/90 backdrop-blur-md py-4 mb-8 border-b border-white/10">
+        <div className="max-w-4xl mx-auto flex overflow-x-auto gap-3 pb-2 no-scrollbar justify-start md:justify-center px-2">
+          {[
+            { id: 'cocteles', label: '🍸 CÓCTELES' },
+            { id: 'comida', label: '🍔 COMIDA' },
+            { id: 'vinos', label: '🍷 BEBIDAS' },
+            { id: 'postres', label: '🍰 POSTRES' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as Categoria)}
+              className={`whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 border ${
+                activeTab === tab.id
+                  ? 'bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]'
+                  : 'bg-zinc-900 border-zinc-800 text-gray-400 hover:border-gray-600 hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* LISTA DE PRODUCTOS */}
+      <div className="max-w-3xl mx-auto space-y-12">
+        {Object.entries(porSubcategoria).map(([subcategoria, items]) => (
+          <section key={subcategoria} className="animate-slideUp">
             
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-xl font-bold text-white group-hover:text-red-500 transition">
-                {trago.nombre}
-              </h3>
-              <span className="text-red-500 font-bold bg-red-900/20 px-3 py-1 rounded-full text-sm">
-                {trago.precio}
-              </span>
+            {/* Título de la Subcategoría (Ej: DE AUTOR) */}
+            <h3 className="flex items-center text-xl font-bold text-red-500 mb-6 uppercase tracking-wider">
+              <span className="w-2 h-8 bg-red-600 mr-3 rounded-full"></span>
+              {subcategoria}
+            </h3>
+
+            {/* Grilla de Ítems */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {items.map((item) => (
+                <article key={item.id} className="group relative bg-zinc-900/40 border border-white/5 p-5 rounded-2xl hover:bg-zinc-900/80 hover:border-red-600/30 transition-all duration-300">
+                  
+                  <div className="flex justify-between items-start gap-4">
+                    <div>
+                      <h4 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">
+                        {item.nombre}
+                      </h4>
+                      {item.descripcion && (
+                        <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+                          {item.descripcion}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="shrink-0">
+                      <span className="block text-red-500 font-bold bg-red-950/20 px-3 py-1 rounded-lg border border-red-900/30 text-sm">
+                        {item.precio}
+                      </span>
+                    </div>
+                  </div>
+
+                </article>
+              ))}
             </div>
-            
-            <p className="text-gray-400 text-sm mb-4">
-              {trago.descripcion}
-            </p>
-
-            <span className="text-xs text-gray-500 uppercase tracking-widest border border-gray-700 px-2 py-1 rounded">
-              {trago.categoria}
-            </span>
-
-          </div>
+          </section>
         ))}
       </div>
 
