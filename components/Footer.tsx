@@ -12,13 +12,13 @@ export default function Footer() {
         {/* 2. Info Clave (Dirección Clickable y Horarios) */}
         <div className="text-center text-sm text-gray-400">
           <a 
-            href="https://www.google.com/maps/search/?api=1&query=San+Juan+729,+Villa+María" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="mb-2 block hover:text-red-500 transition cursor-pointer"
-          >
-            📍 San Juan 729, Villa María
-          </a>
+  href="https://www.google.com/maps/search/?api=1&query=San+Juan+729,+Villa+María" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="mb-2 block hover:text-red-500 transition cursor-pointer"
+>
+  📍 San Juan 729, Villa María
+</a>
           <p>Mié - Dom | 20:00 - Cierre</p>
         </div>
 

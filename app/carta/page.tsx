@@ -3,13 +3,10 @@ import { useState } from 'react';
 import { menuItems, Categoria } from './data';
 
 export default function CartaPage() {
-  // Estado para saber qué pestaña está activa (Por defecto: Cócteles)
   const [activeTab, setActiveTab] = useState<Categoria>('cocteles');
 
-  // 1. Filtramos: Solo mostramos los productos de la categoría elegida
   const productosFiltrados = menuItems.filter(item => item.categoria === activeTab);
 
-  // 2. Agrupamos: Organizamos por "Subcategoría" (Ej: De Autor, Clásicos, Tapeo...)
   const porSubcategoria = productosFiltrados.reduce((acc, item) => {
     const sub = item.subcategoria || 'Varios';
     if (!acc[sub]) acc[sub] = [];
@@ -30,13 +27,12 @@ export default function CartaPage() {
         </p>
       </div>
 
-      {/* PESTAÑAS DE NAVEGACIÓN (STICKY) */}
-<div className="sticky top-20 z-40 bg-black/90 backdrop-blur-md py-4 mb-8 border-b border-white/10">
-  {/* CAMBIO AQUÍ: Usamos flex-wrap para que bajen de línea y quitamos el scroll */}
-  <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-3 px-2">
-    {[
-      { id: 'cocteles', label: '🍸 CÓCTELES' },
-      { id: 'comida', label: '🍔 COMIDA' },
+      {/* PESTAÑAS DE NAVEGACIÓN */}
+      <div className="sticky top-20 z-40 bg-black/90 backdrop-blur-md py-4 mb-8 border-b border-white/10">
+        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-3 px-2">
+          {[
+            { id: 'cocteles', label: '🍸 CÓCTELES' },
+            { id: 'comida', label: '🍔 COMIDA' },
             { id: 'vinos', label: '🍷 BEBIDAS' },
             { id: 'postres', label: '🍰 POSTRES' },
           ].map((tab) => (
@@ -60,17 +56,28 @@ export default function CartaPage() {
         {Object.entries(porSubcategoria).map(([subcategoria, items]) => (
           <section key={subcategoria} className="animate-slideUp">
             
-            {/* Título de la Subcategoría (Ej: DE AUTOR) */}
             <h3 className="flex items-center text-xl font-bold text-red-500 mb-6 uppercase tracking-wider">
               <span className="w-2 h-8 bg-red-600 mr-3 rounded-full"></span>
               {subcategoria}
             </h3>
 
-            {/* Grilla de Ítems */}
             <div className="grid gap-4 md:grid-cols-2">
               {items.map((item) => (
                 <article key={item.id} className="group relative bg-zinc-900/40 border border-white/5 p-5 rounded-2xl hover:bg-zinc-900/80 hover:border-red-600/30 transition-all duration-300">
                   
+                  {/* --- AQUÍ ESTÁ LO NUEVO: ETIQUETAS DE COLORES --- */}
+                  {item.etiqueta && (
+                    <div className={`absolute -top-3 left-4 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg uppercase tracking-wide border border-white/10 z-10 ${
+                      item.etiqueta.includes('Más Pedido') ? 'bg-linear-to-r from-orange-500 to-red-600 shadow-orange-900/40' :
+                      item.etiqueta.includes('Recomendado') ? 'bg-linear-to-r from-yellow-500 to-amber-600 shadow-amber-900/40' :
+                      item.etiqueta.includes('Libre') ? 'bg-linear-to-r from-purple-600 to-indigo-600 shadow-purple-900/40' :
+                      'bg-zinc-700'
+                    }`}>
+                      {item.etiqueta}
+                    </div>
+                  )}
+                  {/* ----------------------------------------------- */}
+
                   <div className="flex justify-between items-start gap-4">
                     <div>
                       <h4 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">

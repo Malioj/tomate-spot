@@ -9,6 +9,7 @@ export interface Producto {
   precio: string;
   categoria: Categoria;
   subcategoria?: string;
+  etiqueta?: string;
 }
 
 export const menuItems: Producto[] = [
@@ -17,7 +18,7 @@ export const menuItems: Producto[] = [
   // =========================================
 
   // --- DE AUTOR ---
-  { id: 1, nombre: "Yellow Berries", descripcion: "Special ron, syrup de arándanos e hibiscus, zumo de naranja y limón, topping de tónica.", precio: "$9.400", categoria: "cocteles", subcategoria: "De Autor" },
+  { id: 1, nombre: "Yellow Berries", descripcion: "Special ron, syrup de arándanos e hibiscus, zumo de naranja y limón, topping de tónica.", precio: "$9.400", categoria: "cocteles", subcategoria: "De Autor", etiqueta: "🔥 Más Pedido" },
   { id: 2, nombre: "Whisky Yandel", descripcion: "Whisky cítrico, jugo de limón y cordial de jengibre.", precio: "$9.900", categoria: "cocteles", subcategoria: "De Autor" },
   { id: 3, nombre: "Botanical Dimension", descripcion: "Gin macerado en romero, zumo de frutos rojos, limón, syrup clásico, dash de soda y tónica.", precio: "$9.500", categoria: "cocteles", subcategoria: "De Autor" },
   { id: 4, nombre: "Como Piña", descripcion: "Ron de ananá, Hesperidina, notas de jengibre, limón, syrup tropical y solución salina.", precio: "$9.500", categoria: "cocteles", subcategoria: "De Autor" },
@@ -77,7 +78,7 @@ export const menuItems: Producto[] = [
 
   // --- TAPEO ---
   { id: 100, nombre: "Trends de Pollo", descripcion: "Piezas de pollo frito con papas fritas y salsa TMT.", precio: "$14.800", categoria: "comida", subcategoria: "Tapeo" },
-  { id: 101, nombre: "Rabas a la Romana", descripcion: "Con papas fritas, dip de salsa TMT y lactonesa con provenzal.", precio: "$17.700", categoria: "comida", subcategoria: "Tapeo" },
+  { id: 101, nombre: "Rabas a la Romana", descripcion: "Con papas fritas, dip de salsa TMT y lactonesa con provenzal.", precio: "$17.700", categoria: "comida", subcategoria: "Tapeo", etiqueta: "⭐ Recomendado" },
   { id: 102, nombre: "Bastoncitos de Muzzarella", descripcion: "5 unidades rebozadas con dip de salsa TMT.", precio: "$12.500", categoria: "comida", subcategoria: "Tapeo" },
   { id: 103, nombre: "Papas Clásicas", descripcion: "Con dip de salsa TMT y lactonesa.", precio: "$8.900", categoria: "comida", subcategoria: "Tapeo" },
   { id: 104, nombre: "Papas TMT", descripcion: "Con cheddar, lactonesa, provenzal y topping de albondiguitas de bondiola.", precio: "$11.500", categoria: "comida", subcategoria: "Tapeo" },
@@ -94,8 +95,8 @@ export const menuItems: Producto[] = [
   { id: 125, nombre: "Quesadillas de Hongos", descripcion: "Muzzarella, champiñones, verdeo. Con papas.", precio: "$14.500", categoria: "comida", subcategoria: "Wraps & Quesadillas" },
 
   // --- CLÁSICOS ---
-  { id: 130, nombre: "Milanesa Clásica", descripcion: "Ternera con papas fritas y limón.", precio: "$14.200", categoria: "comida", subcategoria: "Clásicos" },
-  { id: 131, nombre: "Milanesa Napolitana", descripcion: "Salsa tomate, queso, rodajas tomate, orégano. Con papas.", precio: "$15.500", categoria: "comida", subcategoria: "Clásicos" },
+  { id: 130, nombre: "Milanesa Clásica", descripcion: "Ternera con papas fritas y limón.", precio: "$14.200", categoria: "comida", subcategoria: "Clásicos", etiqueta: "📅 Mila Libre (Mié)" },
+  { id: 131, nombre: "Milanesa Napolitana", descripcion: "Salsa tomate, queso, rodajas tomate, orégano. Con papas.", precio: "$15.500", categoria: "comida", subcategoria: "Clásicos", etiqueta: "📅 Mila Libre (Mié)" },
   { id: 132, nombre: "Milanesa Burguesa", descripcion: "Cheddar, cebolla encurtida, huevo frito, verdeo. Con papas.", precio: "$16.500", categoria: "comida", subcategoria: "Clásicos" },
   { id: 133, nombre: "Lomo a la Chapa", descripcion: "Bife lomo, queso gratinado, huevo. Con papas y rúcula.", precio: "$17.700", categoria: "comida", subcategoria: "Clásicos" },
   { id: 134, nombre: "Ensalada Pato el Pez", descripcion: "Rúcula, gravlax salmón, palta, langostinos, dressing caramelo.", precio: "$14.500", categoria: "comida", subcategoria: "Clásicos" },
@@ -108,15 +109,15 @@ export const menuItems: Producto[] = [
   { id: 144, nombre: "Fresco", descripcion: "Rúcula, cebolla, palta, zanahoria, huevo, muzzarella. Con papas.", precio: "$15.500", categoria: "comida", subcategoria: "Entre Panes" },
 
   // --- PIZZAS ---
-  { id: 150, nombre: "Roque y Peras", descripcion: "Muzzarella, queso azul, peras asadas. (Media: $11.500)", precio: "$22.600", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 151, nombre: "Hongos y Verdeo", descripcion: "Muzzarella, champiñones, verdeo. (Media: $12.000)", precio: "$23.500", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 152, nombre: "Pico de Gallo", descripcion: "Pollo, salsa criolla, palta. (Media: $12.400)", precio: "$24.300", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 153, nombre: "Langostinos", descripcion: "Langostinos fritos, dressing piña. (Media: $13.000)", precio: "$25.500", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 154, nombre: "Rúcula y Parmesano", descripcion: "Clásica. (Media: $12.500)", precio: "$24.500", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 155, nombre: "Fugazzetta", descripcion: "Cebolla salteada. (Media: $11.400)", precio: "$22.300", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 156, nombre: "Napolitana", descripcion: "Tomate, provenzal, parmesano. (Media: $11.900)", precio: "$23.300", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 157, nombre: "Huevo", descripcion: "Huevo duro. (Media: $11.500)", precio: "$23.500", categoria: "comida", subcategoria: "Pizzas" },
-  { id: 158, nombre: "Muzza", descripcion: "Clásica orégano. (Media: $10.500)", precio: "$20.500", categoria: "comida", subcategoria: "Pizzas" },
+  { id: 150, nombre: "Roque y Peras", descripcion: "Muzzarella, queso azul, peras asadas. (Media: $11.500)", precio: "$22.600", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 151, nombre: "Hongos y Verdeo", descripcion: "Muzzarella, champiñones, verdeo. (Media: $12.000)", precio: "$23.500", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 152, nombre: "Pico de Gallo", descripcion: "Pollo, salsa criolla, palta. (Media: $12.400)", precio: "$24.300", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 153, nombre: "Langostinos", descripcion: "Langostinos fritos, dressing piña. (Media: $13.000)", precio: "$25.500", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 154, nombre: "Rúcula y Parmesano", descripcion: "Clásica. (Media: $12.500)", precio: "$24.500", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 155, nombre: "Fugazzetta", descripcion: "Cebolla salteada. (Media: $11.400)", precio: "$22.300", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 156, nombre: "Napolitana", descripcion: "Tomate, provenzal, parmesano. (Media: $11.900)", precio: "$23.300", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 157, nombre: "Huevo", descripcion: "Huevo duro. (Media: $11.500)", precio: "$23.500", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
+  { id: 158, nombre: "Muzza", descripcion: "Clásica orégano. (Media: $10.500)", precio: "$20.500", categoria: "comida", subcategoria: "Pizzas",etiqueta: "📅 Pizza Libre (Jue)" },
 
 
   // =========================================
