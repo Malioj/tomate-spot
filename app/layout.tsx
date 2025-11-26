@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar"; // Aquí importamos tu nueva barra
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Tomate Cocktail Spot",
-  description: "El mejor bar de cócteles en Villa María",
+  description: "La mejor coctelería y comida en Villa María.",
 };
 
 export default function RootLayout({
@@ -17,9 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={inter.className}>
-        <Navbar />  {/* Aquí colocamos la barra fija arriba */}
-        {children}  {/* Aquí se cargará el resto de la página */}
+      {/* AQUÍ ESTÁ EL CAMBIO: Agregamos bg-black para evitar franjas blancas */}
+      <body className={`${inter.className} bg-black text-white`}>
+        <Navbar />
+        {children}
+        <Footer />
       </body>
     </html>
   );

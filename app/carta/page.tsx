@@ -31,11 +31,12 @@ export default function CartaPage() {
       </div>
 
       {/* PESTAÑAS DE NAVEGACIÓN (STICKY) */}
-      <div className="sticky top-20 z-40 bg-black/90 backdrop-blur-md py-4 mb-8 border-b border-white/10">
-        <div className="max-w-4xl mx-auto flex overflow-x-auto gap-3 pb-2 no-scrollbar justify-start md:justify-center px-2">
-          {[
-            { id: 'cocteles', label: '🍸 CÓCTELES' },
-            { id: 'comida', label: '🍔 COMIDA' },
+<div className="sticky top-20 z-40 bg-black/90 backdrop-blur-md py-4 mb-8 border-b border-white/10">
+  {/* CAMBIO AQUÍ: Usamos flex-wrap para que bajen de línea y quitamos el scroll */}
+  <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-3 px-2">
+    {[
+      { id: 'cocteles', label: '🍸 CÓCTELES' },
+      { id: 'comida', label: '🍔 COMIDA' },
             { id: 'vinos', label: '🍷 BEBIDAS' },
             { id: 'postres', label: '🍰 POSTRES' },
           ].map((tab) => (
