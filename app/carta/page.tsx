@@ -10,32 +10,35 @@ export default function CartaPage() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
-  // --- LOGIC: SCROLL "ANTI-REBOTE" ---
+  // --- LOGIC: SCROLL "ROCA SÓLIDA" (ANTI-TITILEO) ---
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== 'undefined') {
         const currentScrollY = window.scrollY;
         
-        // 1. ZONA SEGURA (Threshold):
-        // Si estamos en los primeros 100px de la página, SIEMPRE mostrar filtros.
-        // Esto evita que en listas cortas (Postres) se oculten y causen saltos.
+        // 1. ZONA SEGURA SUPERIOR:
+        // Si estamos arriba de todo (primeros 100px), SIEMPRE mostrar.
         if (currentScrollY < 100) {
           setShowSubTabs(true);
           setLastScrollY(currentScrollY);
           return;
         }
 
-        // 2. DIFERENCIA MÍNIMA (Delta):
-        // Si la diferencia de movimiento es menor a 10px, ignorar.
-        // Evita parpadeos por micro-movimientos.
-        if (Math.abs(currentScrollY - lastScrollY) < 10) return;
+        const diff = currentScrollY - lastScrollY;
 
-        // Lógica Normal: Bajar = Ocultar, Subir = Mostrar
-        if (currentScrollY > lastScrollY) {
+        // 2. HACIA ABAJO (Ocultar):
+        // Si bajamos más de 10px, ocultamos.
+        if (diff > 10) {
           setShowSubTabs(false);
-        } else {
+        } 
+        // 3. HACIA ARRIBA (Mostrar - LA CLAVE DEL ÉXITO):
+        // Aquí está el truco: Solo mostramos si subió más de 30px de golpe.
+        // Esto evita que el menú "baile" si sueltas el dedo despacito.
+        else if (diff < -30) { 
           setShowSubTabs(true);
         }
+        // Si la diferencia está entre -30 y 10 (movimiento mínimo), NO HACEMOS NADA.
+        // Se queda en el estado que estaba.
 
         setLastScrollY(currentScrollY);
       }
@@ -60,9 +63,7 @@ export default function CartaPage() {
       const containerWidth = container.offsetWidth;
       const buttonWidth = button.offsetWidth;
       const buttonLeft = button.offsetLeft;
-      // Ajuste para centrar
       const scrollPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
-
       container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
     }
   };
@@ -105,8 +106,8 @@ export default function CartaPage() {
   return (
     <main className="min-h-screen bg-black text-white pt-24 px-4 pb-12">
       
-      {/* ENCABEZADO: Le di un poco más de margen inferior (mb-8) para separar del menú */}
-      <div className="max-w-4xl mx-auto text-center mb-8 animate-fadeIn">
+      {/* ENCABEZADO: Más espacio abajo (mb-10) */}
+      <div className="max-w-4xl mx-auto text-center mb-10 animate-fadeIn">
         <h1 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-red-500 to-red-800 mb-2 tracking-tighter">
           NUESTRA CARTA
         </h1>
@@ -116,16 +117,16 @@ export default function CartaPage() {
       </div>
 
       {/* --- PESTAÑAS PRINCIPALES (Sticky) --- */}
-      <div className="sticky top-16 z-40 bg-black/95 backdrop-blur-md pt-2 border-b border-white/5 transition-all duration-300">
+      {/* Agregamos pb-4 para dar aire dentro del contenedor sticky */}
+      <div className="sticky top-16 z-40 bg-black/95 backdrop-blur-md pt-2 pb-4 border-b border-white/5 transition-all duration-300">
         
         {/* Nivel 1: Categorías 
-            MEJORAS VISUALES: 
-            - gap-4 (más separación entre botones)
-            - pb-4 (más espacio abajo) 
+            - gap-6: Mucha más separación entre CÓCTELES y COMIDA
+            - pb-6: Más espacio antes de que empiecen los filtros de abajo
         */}
         <div 
           ref={tabsContainerRef}
-          className="max-w-4xl mx-auto flex overflow-x-auto no-scrollbar gap-4 px-4 pb-4 items-center"
+          className="max-w-4xl mx-auto flex overflow-x-auto no-scrollbar gap-6 px-4 pb-4 items-center"
         >
           {[
             { id: 'cocteles', label: 'CÓCTELES' },
@@ -136,8 +137,7 @@ export default function CartaPage() {
             <button
               key={tab.id}
               onClick={(e) => handleTabClick(tab.id as Categoria, e)}
-              // MEJORA: text-sm (más grande), py-2.5 (más alto), px-6 (más ancho)
-              className={`whitespace-nowrap px-6 py-2.5 rounded-full font-bold text-sm tracking-widest transition-all duration-300 border flex-shrink-0 ${
+              className={`whitespace-nowrap px-6 py-3 rounded-full font-bold text-sm tracking-widest transition-all duration-300 border flex-shrink-0 ${
                 activeTab === tab.id
                   ? 'bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transform scale-105' 
                   : 'bg-transparent border-transparent text-zinc-500 hover:text-white'
@@ -154,17 +154,18 @@ export default function CartaPage() {
           <div 
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
               showSubTabs 
-                ? 'max-h-40 opacity-100 translate-y-0 pb-4' // Agregué pb-4 aquí para separar subfiltros de la lista
+                ? 'max-h-48 opacity-100 translate-y-0' // max-h aumentado para que no corte
                 : 'max-h-0 opacity-0 -translate-y-2'
             }`}
           >
-            <div className="max-w-4xl mx-auto px-2">
-              <div className="flex flex-wrap justify-center gap-3"> {/* gap-3: más aire entre chips */}
+            {/* mt-2: Un pequeño margen extra arriba de los filtros negros */}
+            <div className="max-w-4xl mx-auto mt-2 px-2 pb-2">
+              <div className="flex flex-wrap justify-center gap-3">
                 {subcategoriasDisponibles.map((sub) => (
                   <button
                     key={sub}
                     onClick={() => setActiveSubTab(sub)}
-                    className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 border ${
+                    className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 border ${
                       activeSubTab === sub
                         ? 'bg-black text-red-500 border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.25)]'
                         : 'bg-zinc-900/50 text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
@@ -179,8 +180,8 @@ export default function CartaPage() {
         )}
       </div>
 
-      {/* LISTA DE PRODUCTOS: mt-6 para dar aire tras el header */}
-      <div className="max-w-3xl mx-auto space-y-12 mt-6">
+      {/* LISTA DE PRODUCTOS: mt-10 para separar bien del header */}
+      <div className="max-w-3xl mx-auto space-y-12 mt-10">
         {Object.entries(porSubcategoria).map(([subcategoria, items]) => (
           <section key={subcategoria} className="animate-slideUp">
             
