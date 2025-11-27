@@ -10,36 +10,21 @@ export default function CartaPage() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
-  // --- LOGIC: SCROLL "ROCA SÓLIDA" (ANTI-TITILEO) ---
+  // --- LOGIC: SCROLL PREDECIBLE (UMBRAL FIJO 150px) ---
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== 'undefined') {
         const currentScrollY = window.scrollY;
         
-        // 1. ZONA SEGURA SUPERIOR:
-        // Si estamos arriba de todo (primeros 100px), SIEMPRE mostrar.
-        if (currentScrollY < 100) {
+        if (currentScrollY < 150) {
           setShowSubTabs(true);
-          setLastScrollY(currentScrollY);
-          return;
+        } else {
+          if (currentScrollY > lastScrollY) {
+            setShowSubTabs(false); // Bajando -> Ocultar
+          } else {
+            setShowSubTabs(true);  // Subiendo -> Mostrar
+          }
         }
-
-        const diff = currentScrollY - lastScrollY;
-
-        // 2. HACIA ABAJO (Ocultar):
-        // Si bajamos más de 10px, ocultamos.
-        if (diff > 10) {
-          setShowSubTabs(false);
-        } 
-        // 3. HACIA ARRIBA (Mostrar - LA CLAVE DEL ÉXITO):
-        // Aquí está el truco: Solo mostramos si subió más de 30px de golpe.
-        // Esto evita que el menú "baile" si sueltas el dedo despacito.
-        else if (diff < -30) { 
-          setShowSubTabs(true);
-        }
-        // Si la diferencia está entre -30 y 10 (movimiento mínimo), NO HACEMOS NADA.
-        // Se queda en el estado que estaba.
-
         setLastScrollY(currentScrollY);
       }
     };
@@ -48,12 +33,13 @@ export default function CartaPage() {
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
-
+  // Reset al cambiar pestaña
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setShowSubTabs(true);
   }, [activeTab]);
 
+  // Centrado Inteligente
   const handleTabClick = (tabId: Categoria, e: React.MouseEvent<HTMLButtonElement>) => {
     setActiveTab(tabId);
     const container = tabsContainerRef.current;
@@ -68,29 +54,25 @@ export default function CartaPage() {
     }
   };
 
-  // 1. Filtrado Principal
+  // --- FILTROS ---
   const productosDeLaCategoria = useMemo(() => {
     return menuItems.filter(item => item.categoria === activeTab);
   }, [activeTab]);
 
-  // 2. Subcategorías
   const subcategoriasDisponibles = useMemo(() => {
     const subs = new Set(productosDeLaCategoria.map(i => i.subcategoria || 'Varios'));
     return ['Todos', ...Array.from(subs)];
   }, [productosDeLaCategoria]);
 
-  // 3. Reset Subfiltro
   useEffect(() => {
     setActiveSubTab('Todos');
   }, [activeTab]);
 
-  // 4. Filtrado Final
   const productosVisibles = useMemo(() => {
     if (activeSubTab === 'Todos') return productosDeLaCategoria;
     return productosDeLaCategoria.filter(item => (item.subcategoria || 'Varios') === activeSubTab);
   }, [productosDeLaCategoria, activeSubTab]);
 
-  // Agrupado
   const porSubcategoria = useMemo(() => {
     if (activeSubTab !== 'Todos') {
       return { [activeSubTab]: productosVisibles };
@@ -104,9 +86,9 @@ export default function CartaPage() {
   }, [productosVisibles, activeSubTab]);
 
   return (
-    <main className="min-h-screen bg-black text-white pt-24 px-4 pb-12">
+    <main className="min-h-screen bg-black text-white pt-24 px-4 pb-20">
       
-      {/* ENCABEZADO: Más espacio abajo (mb-10) */}
+      {/* ENCABEZADO */}
       <div className="max-w-4xl mx-auto text-center mb-10 animate-fadeIn">
         <h1 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-red-500 to-red-800 mb-2 tracking-tighter">
           NUESTRA CARTA
@@ -116,17 +98,16 @@ export default function CartaPage() {
         </p>
       </div>
 
-      {/* --- PESTAÑAS PRINCIPALES (Sticky) --- */}
-      {/* Agregamos pb-4 para dar aire dentro del contenedor sticky */}
-      <div className="sticky top-16 z-40 bg-black/95 backdrop-blur-md pt-2 pb-4 border-b border-white/5 transition-all duration-300">
+      {/* --- PESTAÑAS PRINCIPALES (Sticky con más aire) --- */}
+      <div className="sticky top-16 z-40 bg-black/95 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         
-        {/* Nivel 1: Categorías 
-            - gap-6: Mucha más separación entre CÓCTELES y COMIDA
-            - pb-6: Más espacio antes de que empiecen los filtros de abajo
+        {/* NIVEL 1: CATEGORÍAS 
+            - py-4: Más altura vertical para separar del borde superior e inferior.
+            - gap-3: Separación cómoda entre botones.
         */}
         <div 
           ref={tabsContainerRef}
-          className="max-w-4xl mx-auto flex overflow-x-auto no-scrollbar gap-6 px-4 pb-4 items-center"
+          className="max-w-4xl mx-auto flex overflow-x-auto no-scrollbar gap-3 px-4 py-4 items-center"
         >
           {[
             { id: 'cocteles', label: 'CÓCTELES' },
@@ -137,7 +118,7 @@ export default function CartaPage() {
             <button
               key={tab.id}
               onClick={(e) => handleTabClick(tab.id as Categoria, e)}
-              className={`whitespace-nowrap px-6 py-3 rounded-full font-bold text-sm tracking-widest transition-all duration-300 border flex-shrink-0 ${
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full font-bold text-xs tracking-widest transition-all duration-300 border flex-shrink-0 ${
                 activeTab === tab.id
                   ? 'bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transform scale-105' 
                   : 'bg-transparent border-transparent text-zinc-500 hover:text-white'
@@ -149,23 +130,25 @@ export default function CartaPage() {
           <div className="w-4 flex-shrink-0"></div>
         </div>
 
-        {/* Nivel 2: Sub-Filtros (Scroll-to-Hide) */}
+        {/* NIVEL 2: SUB-FILTROS (Scroll-to-Hide) */}
         {subcategoriasDisponibles.length > 2 && (
           <div 
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
               showSubTabs 
-                ? 'max-h-48 opacity-100 translate-y-0' // max-h aumentado para que no corte
+                ? 'max-h-48 opacity-100 translate-y-0' 
                 : 'max-h-0 opacity-0 -translate-y-2'
             }`}
           >
-            {/* mt-2: Un pequeño margen extra arriba de los filtros negros */}
-            <div className="max-w-4xl mx-auto mt-2 px-2 pb-2">
+            {/* - pt-2 pb-5: Mucho más aire abajo antes de que empiece la lista.
+               Separamos visualmente los filtros de los productos.
+            */}
+            <div className="max-w-4xl mx-auto px-2 pt-2 pb-5">
               <div className="flex flex-wrap justify-center gap-3">
                 {subcategoriasDisponibles.map((sub) => (
                   <button
                     key={sub}
                     onClick={() => setActiveSubTab(sub)}
-                    className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 border ${
+                    className={`px-5 py-2 rounded-lg text-xs font-bold transition-all duration-200 border ${
                       activeSubTab === sub
                         ? 'bg-black text-red-500 border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.25)]'
                         : 'bg-zinc-900/50 text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
@@ -180,24 +163,28 @@ export default function CartaPage() {
         )}
       </div>
 
-      {/* LISTA DE PRODUCTOS: mt-10 para separar bien del header */}
-      <div className="max-w-3xl mx-auto space-y-12 mt-10">
+      {/* LISTA DE PRODUCTOS: Espaciado agresivo */}
+      <div className="max-w-3xl mx-auto space-y-16 mt-8">
         {Object.entries(porSubcategoria).map(([subcategoria, items]) => (
           <section key={subcategoria} className="animate-slideUp">
             
             {activeSubTab === 'Todos' && (
-              <h3 className="flex items-center text-xl font-bold text-red-500 mb-6 uppercase tracking-wider">
-                <span className="w-2 h-8 bg-red-600 mr-3 rounded-full"></span>
+              <h3 className="flex items-center text-xl font-bold text-red-500 mb-8 uppercase tracking-wider pl-2">
+                <span className="w-2 h-8 bg-red-600 mr-4 rounded-full"></span>
                 {subcategoria}
               </h3>
             )}
 
-            <div className="grid gap-4 md:grid-cols-2">
+            {/* GRID CHANGE:
+                - gap-6: Más separación entre tarjetas (antes gap-4).
+                - En mobile se verá 1 columna con mucho aire.
+            */}
+            <div className="grid gap-6 md:grid-cols-2">
               {items.map((item) => (
-                <article key={item.id} className="group relative bg-zinc-900/40 border border-white/5 p-5 rounded-2xl hover:bg-zinc-900/80 hover:border-red-600/30 transition-all duration-300">
+                <article key={item.id} className="group relative bg-zinc-900/40 border border-white/5 p-6 rounded-3xl hover:bg-zinc-900/80 hover:border-red-600/30 transition-all duration-300">
                   
                   {item.etiqueta && (
-                    <div className={`absolute -top-3 left-4 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg uppercase tracking-wide border border-white/10 z-10 ${
+                    <div className={`absolute -top-3 left-6 text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg uppercase tracking-wide border border-white/10 z-10 ${
                       item.etiqueta.includes('Más Pedido') ? 'bg-linear-to-r from-orange-500 to-red-600 shadow-orange-900/40' :
                       item.etiqueta.includes('Recomendado') ? 'bg-linear-to-r from-yellow-500 to-amber-600 shadow-amber-900/40' :
                       item.etiqueta.includes('Libre') ? 'bg-linear-to-r from-purple-600 to-indigo-600 shadow-purple-900/40' :
@@ -207,20 +194,23 @@ export default function CartaPage() {
                     </div>
                   )}
 
-                  <div className="flex justify-between items-start gap-4">
-                    <div>
-                      <h4 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">
+                  <div className="flex justify-between items-start gap-5">
+                    <div className="flex-1">
+                      {/* TÍTULO MÁS GRANDE (text-xl) */}
+                      <h4 className="text-xl font-bold text-white group-hover:text-red-400 transition-colors leading-tight">
                         {item.nombre}
                       </h4>
                       {item.descripcion && (
-                        <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+                        /* DESCRIPCIÓN MÁS ESPACIADA (leading-relaxed, mt-3) */
+                        <p className="text-sm text-gray-400 mt-3 leading-relaxed">
                           {item.descripcion}
                         </p>
                       )}
                     </div>
                     
-                    <div className="shrink-0">
-                      <span className="block text-red-500 font-bold bg-red-950/20 px-3 py-1 rounded-lg border border-red-900/30 text-sm">
+                    <div className="shrink-0 flex flex-col items-end gap-2">
+                       {/* PRECIO DESTACADO */}
+                      <span className="block text-red-500 font-bold bg-red-950/20 px-4 py-2 rounded-xl border border-red-900/30 text-base shadow-sm">
                         {item.precio}
                       </span>
                     </div>
