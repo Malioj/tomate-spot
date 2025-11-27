@@ -6,34 +6,64 @@ export default function CartaPage() {
   const [activeTab, setActiveTab] = useState<Categoria>('cocteles');
   const [activeSubTab, setActiveSubTab] = useState<string>('Todos');
   
-  // Referencia al contenedor para poder moverlo
+  const [showSubTabs, setShowSubTabs] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
-  // --- LOGIC: SCROLL AUTOMÁTICO DE LA PÁGINA ---
+  // --- LOGIC: SCROLL "ANTI-REBOTE" ---
+  useEffect(() => {
+    const controlNavbar = () => {
+      if (typeof window !== 'undefined') {
+        const currentScrollY = window.scrollY;
+        
+        // 1. ZONA SEGURA (Threshold):
+        // Si estamos en los primeros 100px de la página, SIEMPRE mostrar filtros.
+        // Esto evita que en listas cortas (Postres) se oculten y causen saltos.
+        if (currentScrollY < 100) {
+          setShowSubTabs(true);
+          setLastScrollY(currentScrollY);
+          return;
+        }
+
+        // 2. DIFERENCIA MÍNIMA (Delta):
+        // Si la diferencia de movimiento es menor a 10px, ignorar.
+        // Evita parpadeos por micro-movimientos.
+        if (Math.abs(currentScrollY - lastScrollY) < 10) return;
+
+        // Lógica Normal: Bajar = Ocultar, Subir = Mostrar
+        if (currentScrollY > lastScrollY) {
+          setShowSubTabs(false);
+        } else {
+          setShowSubTabs(true);
+        }
+
+        setLastScrollY(currentScrollY);
+      }
+    };
+
+    window.addEventListener('scroll', controlNavbar);
+    return () => window.removeEventListener('scroll', controlNavbar);
+  }, [lastScrollY]);
+
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeTab, activeSubTab]);
+    setShowSubTabs(true);
+  }, [activeTab]);
 
-  // --- LOGIC: CENTRADO INTELIGENTE DE PESTAÑAS ---
   const handleTabClick = (tabId: Categoria, e: React.MouseEvent<HTMLButtonElement>) => {
     setActiveTab(tabId);
-
     const container = tabsContainerRef.current;
     const button = e.currentTarget;
 
     if (container && button) {
-      // Cálculos matemáticos para centrar el botón
       const containerWidth = container.offsetWidth;
       const buttonWidth = button.offsetWidth;
       const buttonLeft = button.offsetLeft;
-      
-      // La posición ideal es: (Posición Botón) - (Mitad Pantalla) + (Mitad Botón)
+      // Ajuste para centrar
       const scrollPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
 
-      container.scrollTo({
-        left: scrollPosition,
-        behavior: 'smooth'
-      });
+      container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
     }
   };
 
@@ -75,8 +105,8 @@ export default function CartaPage() {
   return (
     <main className="min-h-screen bg-black text-white pt-24 px-4 pb-12">
       
-      {/* ENCABEZADO */}
-      <div className="max-w-4xl mx-auto text-center mb-6 animate-fadeIn">
+      {/* ENCABEZADO: Le di un poco más de margen inferior (mb-8) para separar del menú */}
+      <div className="max-w-4xl mx-auto text-center mb-8 animate-fadeIn">
         <h1 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-red-500 to-red-800 mb-2 tracking-tighter">
           NUESTRA CARTA
         </h1>
@@ -85,13 +115,17 @@ export default function CartaPage() {
         </p>
       </div>
 
-      {/* --- PESTAÑAS PRINCIPALES (Scroll Horizontal Limpio + Auto Center) --- */}
-      <div className="sticky top-16 z-40 bg-black/95 backdrop-blur-md pt-4 pb-2 border-b border-white/5">
+      {/* --- PESTAÑAS PRINCIPALES (Sticky) --- */}
+      <div className="sticky top-16 z-40 bg-black/95 backdrop-blur-md pt-2 border-b border-white/5 transition-all duration-300">
         
-        {/* Contenedor Limpio (Sin flechas, sin degradados) */}
+        {/* Nivel 1: Categorías 
+            MEJORAS VISUALES: 
+            - gap-4 (más separación entre botones)
+            - pb-4 (más espacio abajo) 
+        */}
         <div 
           ref={tabsContainerRef}
-          className="max-w-4xl mx-auto flex overflow-x-auto no-scrollbar gap-2 px-4 pb-2 items-center"
+          className="max-w-4xl mx-auto flex overflow-x-auto no-scrollbar gap-4 px-4 pb-4 items-center"
         >
           {[
             { id: 'cocteles', label: 'CÓCTELES' },
@@ -101,9 +135,9 @@ export default function CartaPage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              // Aquí llamamos a nuestra función de centrado al hacer click
               onClick={(e) => handleTabClick(tab.id as Categoria, e)}
-              className={`whitespace-nowrap px-6 py-2 rounded-full font-bold text-xs tracking-widest transition-all duration-300 border flex-shrink-0 ${
+              // MEJORA: text-sm (más grande), py-2.5 (más alto), px-6 (más ancho)
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full font-bold text-sm tracking-widest transition-all duration-300 border flex-shrink-0 ${
                 activeTab === tab.id
                   ? 'bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transform scale-105' 
                   : 'bg-transparent border-transparent text-zinc-500 hover:text-white'
@@ -112,36 +146,41 @@ export default function CartaPage() {
               {tab.label}
             </button>
           ))}
-          {/* Pequeño margen final para que el último ítem respire */}
           <div className="w-4 flex-shrink-0"></div>
         </div>
 
-        {/* SUB-FILTROS (Multilínea - Jerarquía Visual Reducida) */}
+        {/* Nivel 2: Sub-Filtros (Scroll-to-Hide) */}
         {subcategoriasDisponibles.length > 2 && (
-          <div className="max-w-4xl mx-auto mt-2 px-2">
-            <div className="flex flex-wrap justify-center gap-2 py-2">
-              {subcategoriasDisponibles.map((sub) => (
-                <button
-                  key={sub}
-                  onClick={() => setActiveSubTab(sub)}
-                  // AJUSTE DE JERARQUÍA: Hicimos estos botones un poco más compactos (py-1.5) 
-                  // y el texto normal (no tracking-widest) para que pesen menos que los de arriba.
-                  className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 border ${
-                    activeSubTab === sub
-                      ? 'bg-black text-red-500 border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.25)]'
-                      : 'bg-zinc-900/50 text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
-                  }`}
-                >
-                  {sub}
-                </button>
-              ))}
+          <div 
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${
+              showSubTabs 
+                ? 'max-h-40 opacity-100 translate-y-0 pb-4' // Agregué pb-4 aquí para separar subfiltros de la lista
+                : 'max-h-0 opacity-0 -translate-y-2'
+            }`}
+          >
+            <div className="max-w-4xl mx-auto px-2">
+              <div className="flex flex-wrap justify-center gap-3"> {/* gap-3: más aire entre chips */}
+                {subcategoriasDisponibles.map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() => setActiveSubTab(sub)}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 border ${
+                      activeSubTab === sub
+                        ? 'bg-black text-red-500 border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.25)]'
+                        : 'bg-zinc-900/50 text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* LISTA DE PRODUCTOS */}
-      <div className="max-w-3xl mx-auto space-y-12 mt-8">
+      {/* LISTA DE PRODUCTOS: mt-6 para dar aire tras el header */}
+      <div className="max-w-3xl mx-auto space-y-12 mt-6">
         {Object.entries(porSubcategoria).map(([subcategoria, items]) => (
           <section key={subcategoria} className="animate-slideUp">
             
