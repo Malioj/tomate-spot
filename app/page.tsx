@@ -3,13 +3,13 @@ import Link from "next/link";
 // --- AGENDA DE DJs (Edita esto cada semana) ---
 const agenda = [
   {
-    dia: "VIERNES 29",
+    dia: "VIERNES 28",
     dj: "GUY J",
     estilo: "Progressive House",
     horario: "23:00 HS"
   },
   {
-    dia: "SÁBADO 30",
+    dia: "SÁBADO 29",
     dj: "ALBUQUERQUE",
     estilo: "Tech House / Melodic",
     horario: "23:30 HS"

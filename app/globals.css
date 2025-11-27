@@ -19,3 +19,12 @@ body {
   color: #ffffff;      /* Texto blanco */
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Utilidad para ocultar la barra de scroll pero permitir el deslizamiento */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
